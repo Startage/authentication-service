@@ -7,24 +7,65 @@ datasource db {
 }
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["interactiveTransactions"]
 }
 
 model User {
+  id                String               @id @default(uuid()) @db.Uuid
+  email             String               @unique @db.VarChar(255)
+  password          String               @db.VarChar(255)
+  name              String               @db.VarChar(120)
+  phone             String               @db.VarChar(24)
+  isConfirmedEmail  Boolean              @default(false) @db.Boolean
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  disabledAt        DateTime?
+  confirmedEmail    UserConfirmedEmail[]
+  refreshToken      UserRefreshToken[]
+  UserConfirmEmail  UserConfirmEmail[]
+  UserResetPassword UserResetPassword[]
+}
+
+model UserConfirmEmail {
   id                 String               @id @default(uuid()) @db.Uuid
-  email              String               @unique @db.VarChar(255)
-  password           String               @db.VarChar(255)
-  name               String               @db.VarChar(120)
-  phone              String               @db.VarChar(24)
+  user               User                 @relation(fields: [userId], references: [id])
+  userId             String               @db.Uuid
+  expiredAt          DateTime?
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
+  disabledAt         DateTime?
   UserConfirmedEmail UserConfirmedEmail[]
 }
 
 model UserConfirmedEmail {
-  id        String   @id @default(uuid()) @db.Uuid
-  user      User     @relation(fields: [userId], references: [id])
-  userId    String   @db.Uuid
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                 String           @id @default(uuid()) @db.Uuid
+  user               User             @relation(fields: [userId], references: [id])
+  userId             String           @db.Uuid
+  userConfirmEmail   UserConfirmEmail @relation(fields: [userConfirmEmailId], references: [id])
+  userConfirmEmailId String           @unique @db.Uuid
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  disabledAt         DateTime?
+}
+
+model UserRefreshToken {
+  id         String    @id @default(uuid()) @db.Uuid
+  expiresIn  Int
+  user       User      @relation(fields: [userId], references: [id])
+  userId     String    @db.Uuid
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  disabledAt DateTime?
+}
+
+model UserResetPassword {
+  id         String    @id @default(uuid()) @db.Uuid
+  user       User      @relation(fields: [userId], references: [id])
+  userId     String    @db.Uuid
+  expiredAt  DateTime?
+  appliedAt  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  disabledAt DateTime?
 }

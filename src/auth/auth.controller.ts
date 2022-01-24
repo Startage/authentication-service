@@ -1,25 +1,27 @@
 import { AuthService } from '@/auth/auth.service';
-import { UserService } from '@/user/user.service';
 import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { User } from '@prisma/client';
+import { User, UserRefreshToken } from '@prisma/client';
 
 @Controller('auth')
 export class AuthController {
   private readonly logger = new Logger(AuthController.name);
 
-  constructor(
-    private readonly authService: AuthService,
-    private readonly userService: UserService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   @MessagePattern('auth.login')
   async login(
-    @Payload('value') data: { username: string; password: string },
-  ): Promise<any> {
-    this.logger.log(`Login user: ${JSON.stringify(data)}`);
-
-    return data;
+    @Payload('value') { email, password }: { email: string; password: string },
+  ): Promise<{
+    user: Omit<User, 'password'>;
+    refreshToken: UserRefreshToken;
+  }> {
+    this.logger.log(
+      `Login user: ${JSON.stringify({
+        email,
+      })}`,
+    );
+    return this.authService.login({ email, password });
   }
 
   @MessagePattern('auth.signup')
@@ -30,19 +32,21 @@ export class AuthController {
       password,
       email,
       phone,
+      baseUrlConfirmation,
     }: {
       name: string;
       password: string;
       email: string;
       phone: string;
+      baseUrlConfirmation: string;
     },
-  ): Promise<any> {
+  ): Promise<{ id: string }> {
     this.logger.log(
       `Signup user: ${JSON.stringify({
         name,
-        password,
         email,
         phone,
+        baseUrlConfirmation,
       })}`,
     );
 
@@ -51,15 +55,7 @@ export class AuthController {
       password,
       email,
       phone,
-    });
-  }
-
-  @MessagePattern('auth.load-user-by-email')
-  async verifyEmailExists(
-    @Payload('value') { email }: { email: string },
-  ): Promise<User> {
-    return await this.userService.loadByEmail({
-      email,
+      baseUrlConfirmation,
     });
   }
 }
