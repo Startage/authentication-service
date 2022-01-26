@@ -2,7 +2,7 @@ import { PrismaService } from '@/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { UserRefreshToken } from '@prisma/client';
-import { add, getUnixTime, isAfter } from 'date-fns';
+import { add, fromUnixTime, getUnixTime, isAfter } from 'date-fns';
 
 @Injectable()
 export class UserRefreshTokenService {
@@ -20,23 +20,18 @@ export class UserRefreshTokenService {
     userId,
     createdAt,
   }: Omit<UserRefreshToken, 'id' | 'expiresIn' | 'updatedAt' | 'disabledAt'>) {
-    console.log(this.EXPIRED_REFRESH_TOKEN);
     const expiresIn = getUnixTime(
       add(new Date(), {
-        seconds: this.EXPIRED_REFRESH_TOKEN,
+        days: this.EXPIRED_REFRESH_TOKEN,
       }),
     );
-    const refreshToken = await this.prisma.userRefreshToken.create({
+    return this.prisma.userRefreshToken.create({
       data: {
         userId,
         createdAt,
         expiresIn: expiresIn,
       },
     });
-    return {
-      ...refreshToken,
-      expiresIn: parseInt(expiresIn.toString()),
-    };
   }
 
   async loadValid({ refreshTokenId }: { refreshTokenId: string }) {
@@ -47,11 +42,10 @@ export class UserRefreshTokenService {
     });
     if (!findRefreshToken) return null;
     const { expiresIn, ...refreshToken } = findRefreshToken;
-    console.log(new Date(expiresIn.toString()));
-    if (isAfter(new Date(), new Date(expiresIn.toString()))) return null;
+    if (isAfter(new Date(), fromUnixTime(expiresIn))) return null;
     return {
       ...refreshToken,
-      expiresIn: parseInt(expiresIn.toString()),
+      expiresIn,
     };
   }
 }

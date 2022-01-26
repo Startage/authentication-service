@@ -89,10 +89,11 @@ export class AuthService {
     });
     if (user) {
       const { password: hashedPassword, ...result } = user;
-      const isValidPassword = this.userService.isValidPassword({
+      const isValidPassword = await this.userService.isValidPassword({
         hashedPassword,
         currentPassword: password,
       });
+
       if (isValidPassword) {
         if (!user.isConfirmedEmail) {
           throw new EmailIsNotConfirmedError();
