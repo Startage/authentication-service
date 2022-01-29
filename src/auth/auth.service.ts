@@ -1,10 +1,11 @@
 import { CustomClientKafka } from '@/common/custom-client-kafka';
 import { EmailIsNotConfirmedError } from '@/common/errors/email-is-not-confirmed-error';
-import { PrismaService } from '@/prisma.service';
+import { KafkaNotificationService } from '@/kafka/kafka-notification/kafka-notification.service';
+import { PrismaService } from '@/prisma/prisma.service';
 import { UserConfirmEmailService } from '@/user-confirm-email/user-confirm-email.service';
 import { UserRefreshTokenService } from '@/user-refresh-token/user-refresh-token.service';
 import { UserService } from '@/user/user.service';
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { User, UserRefreshToken } from '@prisma/client';
 import add from 'date-fns/add';
@@ -18,8 +19,7 @@ export class AuthService {
     private readonly userConfirmEmailService: UserConfirmEmailService,
     private readonly userRefreshTokenService: UserRefreshTokenService,
     private readonly configService: ConfigService,
-    @Inject('NOTIFICATION_KAFKA_SERVICE')
-    private clientNotification: CustomClientKafka,
+    private clientNotification: KafkaNotificationService,
   ) {
     this.EXPIRED_AT_CONFIRM_EMAIL = parseInt(
       configService.get('EXPIRED_AT_CONFIRM_EMAIL'),

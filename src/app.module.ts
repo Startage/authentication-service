@@ -1,4 +1,4 @@
-import { PrismaService } from '@/prisma.service';
+import { PrismaService } from '@/prisma/prisma.service';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { UserModule } from './user/user.module';
@@ -7,6 +7,7 @@ import { UserConfirmEmailModule } from './user-confirm-email/user-confirm-email.
 import { UserConfirmedEmailModule } from './user-confirmed-email/user-confirmed-email.module';
 import { UserRefreshTokenModule } from './user-refresh-token/user-refresh-token.module';
 import { UserResetPasswordModule } from './user-reset-password/user-reset-password.module';
+import { KafkaModule } from './kafka/kafka.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { UserResetPasswordModule } from './user-reset-password/user-reset-passwo
     UserConfirmedEmailModule,
     UserRefreshTokenModule,
     UserResetPasswordModule,
+    KafkaModule,
   ],
   controllers: [],
   providers: [PrismaService],

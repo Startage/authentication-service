@@ -1,5 +1,6 @@
 import { CustomClientKafka } from '@/common/custom-client-kafka';
-import { PrismaService } from '@/prisma.service';
+import { KafkaNotificationService } from '@/kafka/kafka-notification/kafka-notification.service';
+import { PrismaService } from '@/prisma/prisma.service';
 import { UserService } from '@/user/user.service';
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -13,8 +14,7 @@ export class UserResetPasswordService {
     private readonly prismaService: PrismaService,
     private readonly configService: ConfigService,
     private readonly userService: UserService,
-    @Inject('NOTIFICATION_KAFKA_SERVICE')
-    private clientNotification: CustomClientKafka,
+    private clientNotification: KafkaNotificationService,
   ) {
     this.EXPIRED_AT_RESET_PASSWORD = parseInt(
       configService.get('EXPIRED_AT_RESET_PASSWORD'),

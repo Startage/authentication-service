@@ -1,9 +1,10 @@
-import { PrismaService } from '@/prisma.service';
+import { PrismaModule } from '@/prisma/prisma.module';
 import { Module } from '@nestjs/common';
 import { UserConfirmedEmailService } from './user-confirmed-email.service';
 
 @Module({
-  providers: [UserConfirmedEmailService, PrismaService],
+  imports: [PrismaModule],
+  providers: [UserConfirmedEmailService],
   exports: [UserConfirmedEmailService],
 })
 export class UserConfirmedEmailModule {}
