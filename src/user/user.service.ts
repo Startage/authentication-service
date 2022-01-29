@@ -39,6 +39,14 @@ export class UserService {
     });
   }
 
+  async loadById({ userId }: { userId: string }): Promise<User> {
+    return this.prismaService.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+  }
+
   async updateIsConfirmedEmailById(
     {
       isConfirmedEmail,
@@ -88,5 +96,50 @@ export class UserService {
     hashedPassword: string;
   }): Promise<boolean> {
     return bcrypt.compare(currentPassword, hashedPassword);
+  }
+
+  async validUpdatePasswordById({
+    password,
+    userId,
+    currentPassword,
+  }: {
+    password: string;
+    currentPassword: string;
+    userId: string;
+  }) {
+    const { password: hashedPassword } = await this.loadById({ userId });
+    const isValidCurrentPassword = await this.isValidPassword({
+      currentPassword,
+      hashedPassword,
+    });
+    if (!isValidCurrentPassword) throw new Error('Current password is invalid');
+    await this.updatePasswordById({
+      password,
+      userId,
+    });
+  }
+
+  async updateById({
+    phone,
+    name,
+    avatarUrl,
+    userId,
+  }: {
+    phone: string;
+    name: string;
+    avatarUrl: string;
+    userId: string;
+  }): Promise<Omit<User, 'password'>> {
+    const { password, ...user } = await this.prismaService.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        name,
+        phone,
+        avatarUrl,
+      },
+    });
+    return user;
   }
 }

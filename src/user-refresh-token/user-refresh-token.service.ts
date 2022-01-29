@@ -39,13 +39,21 @@ export class UserRefreshTokenService {
       where: {
         id: refreshTokenId,
       },
+      include: {
+        user: true,
+      },
     });
     if (!findRefreshToken) return null;
-    const { expiresIn, ...refreshToken } = findRefreshToken;
+    const {
+      expiresIn,
+      user: { password, ...user },
+      ...refreshToken
+    } = findRefreshToken;
     if (isAfter(new Date(), fromUnixTime(expiresIn))) return null;
     return {
       ...refreshToken,
       expiresIn,
+      user,
     };
   }
 }

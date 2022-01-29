@@ -52,6 +52,7 @@ export class AuthService {
           phone,
           password,
           isConfirmedEmail: false,
+          avatarUrl: null,
         },
         prisma,
       );

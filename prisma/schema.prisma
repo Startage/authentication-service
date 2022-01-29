@@ -17,6 +17,7 @@ model User {
   password          String               @db.VarChar(255)
   name              String               @db.VarChar(120)
   phone             String               @db.VarChar(24)
+  avatarUrl         String?              @db.VarChar(255)
   isConfirmedEmail  Boolean              @default(false) @db.Boolean
   createdAt         DateTime             @default(now())
   updatedAt         DateTime             @updatedAt
